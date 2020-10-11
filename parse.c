@@ -53,6 +53,15 @@ bool at_eof() {
   return token->kind == TK_EOF;
 }
 
+Token *consume_ident() {
+  if (token->kind != TK_IDENT)
+    return NULL;
+
+  Token *ident_token = token;
+  token = token->next;
+  return ident_token;
+}
+
 // Create a new token and add it as the next token of `cur`.
 Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
   Token *tok = calloc(1, sizeof(Token));
@@ -65,6 +74,15 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
 
 bool startswith(char *p, char *q) {
   return memcmp(p, q, strlen(q)) == 0;
+}
+
+LVar *locals;
+
+LVar *find_lvar(Token *tok) {
+  for (LVar *var = locals; var; var = var->next)
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+      return var;
+  return NULL;
 }
 
 // Tokenize `user_input` and returns new tokens.
@@ -81,6 +99,17 @@ Token *tokenize() {
       continue;
     }
 
+    // Identifier
+    if ('a' <= *p && *p <= 'z') {
+      cur = new_token(TK_IDENT, cur, p, 0);
+      char *q = p;
+      while('a' <= *p && *p <= 'z') {
+        p++;
+      }
+      cur->len = q - p;
+      continue;
+    }
+
     // Multi-letter punctuator
     if (startswith(p, "==") || startswith(p, "!=") ||
         startswith(p, "<=") || startswith(p, ">=")) {
@@ -90,7 +119,7 @@ Token *tokenize() {
     }
 
     // Single-letter punctuator
-    if (strchr("+-*/()<>", *p)) {
+    if (strchr("+-*/()<>;=", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }

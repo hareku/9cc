@@ -12,6 +12,7 @@ typedef struct Token Token;
 
 typedef enum {
   TK_RESERVED, // Keywords or punctuators
+  TK_IDENT,    // Identifier
   TK_NUM,      // Integer literals
   TK_EOF,      // End-of-file markers
 } TokenKind;
@@ -29,13 +30,26 @@ Token *token;
 
 Token *tokenize();
 bool consume(char *op);
+Token *consume_ident();
 void expect(char *op);
 int expect_number();
+bool at_eof();
+
+typedef struct LVar LVar;
+struct LVar {
+  LVar *next;
+  char *name;
+  int len;
+  int offset;
+};
+LVar *locals;
+LVar *find_lvar(Token *tok);
 
 /**
  * codegen.c
  */
 typedef struct Node Node;
+Node *code[100];
 
 typedef enum {
   ND_ADD, // +
@@ -47,6 +61,8 @@ typedef enum {
   ND_NE,  // !=
   ND_LT,  // <
   ND_LE,  // <=
+  ND_ASSIGN, // =
+  ND_LVAR, // local val
 } NodeKind;
 
 struct Node {
@@ -54,6 +70,7 @@ struct Node {
   Node *lhs; // left
   Node *rhs; // right
   int val;   // Use if kind is ND_NUM
+  int offset; // Use if kind is ND_LVAR
 };
 
 Node *expr();
@@ -65,6 +82,7 @@ Node *primary();
 Node *unary();
 
 void gen(Node *node);
+void program();
 
 /**
  * container.c

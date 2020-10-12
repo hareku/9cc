@@ -15,6 +15,7 @@ typedef enum {
   TK_IDENT,    // Identifier
   TK_NUM,      // Integer literals
   TK_EOF,      // End-of-file markers
+  TK_RETURN,   // "return"
 } TokenKind;
 
 struct Token {
@@ -34,6 +35,7 @@ Token *consume_ident();
 void expect(char *op);
 int expect_number();
 bool at_eof();
+bool consume_return();
 
 typedef struct LVar LVar;
 struct LVar {
@@ -63,6 +65,7 @@ typedef enum {
   ND_LE,  // <=
   ND_ASSIGN, // =
   ND_LVAR, // local val
+  ND_RETURN, // return
 } NodeKind;
 
 struct Node {

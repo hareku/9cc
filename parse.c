@@ -31,6 +31,14 @@ bool consume(char *op) {
   return true;
 }
 
+bool consume_return() {
+  if (token->kind != TK_RETURN)
+    return false;
+
+  token = token->next;
+  return true;
+}
+
 // Ensure that the current token is `op`.
 void expect(char *op) {
   if (token->kind != TK_RESERVED ||
@@ -76,6 +84,19 @@ bool startswith(char *p, char *q) {
   return memcmp(p, q, strlen(q)) == 0;
 }
 
+int is_alnum(char c) {
+  return ('a' <= c && c <= 'z') ||
+         ('A' <= c && c <= 'Z') ||
+         ('0' <= c && c <= '9') ||
+         (c == '_');
+}
+
+int is_alp(char c) {
+  return ('a' <= c && c <= 'z') ||
+         ('A' <= c && c <= 'Z') ||
+         (c == '_');
+}
+
 // Tokenize `user_input` and returns new tokens.
 Token *tokenize() {
   char *p = user_input;
@@ -90,11 +111,18 @@ Token *tokenize() {
       continue;
     }
 
+    // "return"
+    if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
+      cur = new_token(TK_RETURN, cur, p, 6);
+      p += 6;
+      continue;
+    }
+
     // Identifier
-    if ('a' <= *p && *p <= 'z') {
+    if (is_alp(*p)) {
       cur = new_token(TK_IDENT, cur, p, 0);
       char *q = p;
-      while('a' <= *p && *p <= 'z') {
+      while(is_alp(*p)) {
         p++;
       }
       cur->len = p - q;

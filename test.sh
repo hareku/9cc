@@ -50,4 +50,7 @@ assert 10 'a=30;a-20';
 assert 20 'a=30;b=10;a-b';
 assert 30 'abc=100;ab=70;abc-ab';
 
+assert 10 'a=10;return a'
+assert 30 'a=10;b=20;return a+b'
+
 echo OK

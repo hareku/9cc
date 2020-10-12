@@ -76,15 +76,6 @@ bool startswith(char *p, char *q) {
   return memcmp(p, q, strlen(q)) == 0;
 }
 
-LVar *locals;
-
-LVar *find_lvar(Token *tok) {
-  for (LVar *var = locals; var; var = var->next)
-    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
-      return var;
-  return NULL;
-}
-
 // Tokenize `user_input` and returns new tokens.
 Token *tokenize() {
   char *p = user_input;
@@ -106,7 +97,7 @@ Token *tokenize() {
       while('a' <= *p && *p <= 'z') {
         p++;
       }
-      cur->len = q - p;
+      cur->len = p - q;
       continue;
     }
 

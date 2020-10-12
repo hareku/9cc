@@ -115,6 +115,16 @@ Node *unary() {
   return primary();
 }
 
+LVar *locals;
+
+LVar *find_lvar(Token *tok) {
+  for (LVar *var = locals; var; var = var->next) {
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+      return var;
+  }
+  return NULL;
+}
+
 // primary = "(" expr ")" | num
 Node *primary() {
   if (consume("(")) {
